@@ -6,7 +6,11 @@
 RingBufferState_Enum create_ring_buffer(RingBufferInfo_Typedef *ring_buffer, ring_u8 *buff, ring_u16 size)
 {
     if((size & (size - 1)) != 0)    
-        return RING_ERR;
+	{
+		ring_buffer->buff = NULL;
+		return RING_ERR;
+	}
+        
     ring_buffer->buff = buff;
     ring_buffer->in = 0;
     ring_buffer->out = 0;
@@ -17,6 +21,8 @@ RingBufferState_Enum create_ring_buffer(RingBufferInfo_Typedef *ring_buffer, rin
 
 ring_u16 write_ring_buffer(RingBufferInfo_Typedef *ring_buffer, ring_u8 *buff, ring_u16 size)
 {
+	if(ring_buffer->buff == NULL)
+		return 0;
     ring_u16 len = 0;
     size = RING_MIN(size , ring_buffer->size - ring_buffer->in + ring_buffer->out);
     len = RING_MIN(size, ring_buffer->size - (ring_buffer->in & (ring_buffer->size - 1)));
@@ -28,6 +34,8 @@ ring_u16 write_ring_buffer(RingBufferInfo_Typedef *ring_buffer, ring_u8 *buff, r
 
 ring_u16 read_ring_buffer(RingBufferInfo_Typedef *ring_buffer, ring_u8 *buff, ring_u16 size)
 {
+	if(ring_buffer->buff == NULL)
+		return 0;
     ring_u16 len = 0;
     size = RING_MIN(size , ring_buffer->in - ring_buffer->out);
     len = RING_MIN(size, ring_buffer->size - (ring_buffer->out & (ring_buffer->size - 1)));  
